@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/advisor/wp-content/uploads/2023/02/Image-att.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            color: #343a40;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: calc(33% - 10px);
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        .status.present {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status.absent {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .summary {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            input[type="text"], input[type="date"], select {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>University Attendance System</h1>
+
+        <form id="attendanceForm">
+            <input type="text" id="studentName" placeholder="Enter student name" required>
+            <input type="date" id="attendanceDate" required>
+            <select id="attendanceStatus" required>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+            </select>
+            <button type="submit">Mark Attendance</button>
+        </form>
+
+        <div class="error-message" id="errorMessage">Please fill in all fields correctly.</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceList"></tbody>
+        </table>
+
+        <div class="summary" id="summary">
+            Total Students: 0 | Present: 0 | Absent: 0
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('attendanceForm');
+        const attendanceList = document.getElementById('attendanceList');
+        const errorMessage = document.getElementById('errorMessage');
+        const summary = document.getElementById('summary');
+
+        let attendanceData = [];
+        let totalPresent = 0;
+        let totalAbsent = 0;
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const studentName = document.getElementById('studentName').value.trim();
+            const attendanceDate = document.getElementById('attendanceDate').value;
+            const attendanceStatus = document.getElementById('attendanceStatus').value;
+
+            if (!studentName || !attendanceDate) {
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            errorMessage.style.display = "none";
+
+            const duplicateEntry = attendanceData.some(attendance => 
+                attendance.name === studentName && attendance.date === attendanceDate
+            );
+
+            if (duplicateEntry) {
+                errorMessage.textContent = "Attendance already marked for this student on this date.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            attendanceData.push({
+                name: studentName,
+                date: attendanceDate,
+                status: attendanceStatus
+            });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${studentName}</td>
+                <td>${attendanceDate}</td>
+                <td class="status ${attendanceStatus.toLowerCase()}">${attendanceStatus}</td>
+            `;
+
+            attendanceList.appendChild(row);
+
+            if (attendanceStatus === "Present") {
+                totalPresent++;
+            } else {
+                totalAbsent++;
+            }
+
+            updateSummary();
+
+            form.reset();
+        });
+
+        function updateSummary() {
+            summary.innerHTML = `
+                Total Students: ${attendanceData.length} | Present: ${totalPresent} | Absent: ${totalAbsent}
+            `;
+        }
+    </script>
+</body>
+</html>
